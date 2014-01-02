@@ -1,0 +1,8 @@
+Too many command line arguments: –v 1 ../misc/testByDuan.yo –l 1000000000
+Usage: ./psim [-htg] [-l m] [-v n] file.yo
+file.yo arg required in GUI mode, optional in TTY mode (default stdin)
+   -h     Print this message
+   -g     Run in GUI mode instead of TTY mode (default TTY)
+   -l m   Set instruction limit to m [TTY mode only] (default 10000)
+   -v n   Set verbosity level to 0 <= n <= 2 [TTY mode only] (default 2)
+   -t     Test result against ISA simulator [TTY mode only]

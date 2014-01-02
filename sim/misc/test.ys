@@ -1,0 +1,155 @@
+#test.c
+#获得自己是A还是B, 检查32768位置的值，同时将其修改为1
+#32768-32799-->id
+#32800-32831-->count
+#32832 ------->data
+#A program:
+# A中保存自己的当前数据写的地址，程序检查地址count位置是否发生改变，如果改变说明B已经写完，自己可以写
+# 下面的数据。然后A每次写入i%10个1， B每次写入i%10个2， i是递增的。 
+# 最后检查如果结果符合格式，则说明完成了任务。
+#registers:%eax, %ebx, %ecx, %edx
+	irmovl	$1, %eax	
+	irmovl  $1024, %ebx	
+	exchange (%ebx), %eax	
+	irmovl 	$0, %ecx
+	subl	%eax, %ecx
+	jne	B	# if(%eax == 0)
+
+A:	
+	irmovl $966, %eax
+	irmovl $1, %ebx
+	rmmovl %ebx, (%eax)
+	irmovl $998, %eax
+	irmovl $1, %ebx
+	rmmovl %ebx, (%eax)
+	irmovl $1, %ecx	# i = 0
+	irmovl $0, %ebx   #addr = 0
+	irmovl $1088, %eax
+	irmovl $1056, %edx
+	exchange (%edx), %eax
+	
+LoopA:
+	irmovl $1056, %edi
+	mrmovl (%edi), %eax
+	subl %ebx, %eax
+	jne WA
+	jmp LoopA
+WA:
+	irmovl $0, %edx
+	irmovl $1056, %eax
+	mrmovl (%eax), %esi
+	irmovl $998, %eax
+	mrmovl (%eax), %edi
+	rrmovl %edi, %ecx
+	addl %edi, %edi
+	iaddl $1, %edi
+WALoop:
+	rmmovl %edi, (%esi)
+	iaddl $32, %esi
+	iaddl $1, %edx
+	rrmovl %edx, %eax
+	subl %ecx, %eax
+	jne  WALoop
+    #	iaddl $1, %ecx
+       	iaddl $1, %ecx
+	irmovl $10, %eax
+	subl %ecx, %eax
+	je M
+	irmovl $998, %eax
+	rmmovl %ecx, (%eax)
+N:
+ 
+	irmovl $1056, %edi
+	rrmovl %esi, %ebx
+	exchange (%edi), %esi
+	iaddl $1, %ecx
+	irmovl $966, %edx
+	mrmovl (%edx), %ecx
+	iaddl $1, %ecx
+	rmmovl %ecx, (%edx)
+	irmovl $100, %eax
+	subl %ecx, %eax
+	je ENDA
+	jmp LoopA
+M:
+	irmovl $1, %ecx
+	irmovl $998, %eax
+	rmmovl %ecx, (%eax)
+	jmp N 
+B:
+	irmovl $966, %eax
+        irmovl $1, %ebx
+        rmmovl %ebx, (%eax)
+
+	irmovl  $998, %eax
+	irmovl  $1, %ebx
+	rmmovl %ebx, (%eax)	
+	irmovl  $1, %ecx	# i = 0
+	irmovl  $1088, %ebx   #addr = 0
+	
+LoopB:
+	irmovl $1056, %edi
+	mrmovl (%edi), %eax
+	subl %ebx, %eax
+	jg WB
+	jmp LoopB
+WB:
+	irmovl $0, %edx
+	irmovl $1056, %eax
+	mrmovl (%eax), %esi
+	irmovl $998, %eax
+	mrmovl (%eax), %edi
+	rrmovl %edi, %ecx
+	addl %edi, %edi
+WBLoop:
+	rmmovl %edi, (%esi)
+	iaddl $32, %esi
+	iaddl $1, %edx
+	rrmovl %edx, %eax
+	subl %ecx, %eax
+	jne  WBLoop
+    #	iaddl $1, %ecx
+	iaddl $1, %ecx
+	irmovl $10, %eax
+	subl %ecx, %eax
+	je S
+	irmovl $998, %eax
+        rmmovl %ecx, (%eax)
+T:
+        rrmovl %esi, %ebx
+	irmovl $1056, %edi
+	exchange (%edi), %esi
+	irmovl $966, %edx
+        mrmovl (%edx), %ecx
+        iaddl $1, %ecx
+	rmmovl %ecx, (%edx)
+	irmovl $100, %eax
+	subl %ecx, %eax
+	je ENDB
+	jmp LoopB
+S:
+	irmovl $1, %ecx
+	irmovl $998, %eax
+	rmmovl %ecx, (%eax)
+	jmp T 
+ENDA:   irmovl $1024, %eax
+	mrmovl (%eax), %ebx
+	iaddl $1, %ebx
+	rmmovl %ebx, (%eax)
+	jmp ENDLOOP
+ENDB:  	irmovl $1024, %eax
+	mrmovl (%eax), %ebx
+	iaddl $1, %ebx
+	rmmovl %ebx, (%eax)
+	jmp ENDLOOP
+ 
+ENDLOOP:
+    mrmovl (%eax), %ebx
+    irmovl $3, %ecx
+    subl %ebx, %ecx
+    je END:
+    jmp ENDLOOP
+END:
+
+
+
